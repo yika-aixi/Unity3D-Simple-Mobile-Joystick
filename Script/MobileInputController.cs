@@ -20,22 +20,36 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
         
     }
 
+    /// <summary>
+    /// 计算公式来源:http://www.theappguruz.com/blog/beginners-guide-learn-to-make-simple-virtual-joystick-in-unity
+    /// </summary>
+    /// <param name="eventData"></param>
     public void OnDrag(PointerEventData eventData)
     {
-       
-        PointPosition = new Vector2((eventData.position.x - Background.position.x) / ((Background.rect.size.x - Knob.rect.size.x) / 2), (eventData.position.y - Background.position.y) / ((Background.rect.size.y - Knob.rect.size.y) / 2));
+        RectTransformUtility.ScreenPointToLocalPointInRectangle
+        (Background, 
+            eventData.position,
+            eventData.pressEventCamera,
+            out var position);
         
-        PointPosition = (PointPosition.magnitude>1.0f)?PointPosition.normalized :PointPosition;
-     
-        Knob.transform.position = new Vector2((PointPosition.x *((Background.rect.size.x-Knob.rect.size.x)/2)*offset) + Background.position.x, (PointPosition.y* ((Background.rect.size.y-Knob.rect.size.y)/2) *offset) + Background.position.y);
-       
+        position.x = (position.x/Background.sizeDelta.x);
+        position.y = (position.y/Background.sizeDelta.y);
         
+        float x = (Knob.pivot.x == 1f) ? position.x *2 + 1 : position.x *2 - 1;
+        float y = (Knob.pivot.y == 1f) ? position.y *2 + 1 : position.y *2 - 1;
+            
+        PointPosition = new Vector3 (x,y);
+        PointPosition = (PointPosition.magnitude > 1) ? PointPosition.normalized : PointPosition;
+        
+        Knob.anchoredPosition = new Vector3 (PointPosition.x * (Background.sizeDelta.x/ (1 + offset))
+            ,PointPosition.y * (Background.sizeDelta.y)/(1 + offset));
+
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
         PointPosition = new Vector2(0f,0f);
-        Knob.transform.position = Background.position;
+        Knob.anchoredPosition = Vector2.zero;
     }
     public void OnPointerDown(PointerEventData eventData)
     {

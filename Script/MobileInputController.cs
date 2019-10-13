@@ -1,15 +1,28 @@
 //
 
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
 [RequireComponent(typeof(UnityEngine.UI.AspectRatioFitter))]
 public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandler,IPointerDownHandler,IPointerUpHandler {
 
+    [Serializable]
+    public class MoveStartEvent:UnityEvent {}
+    [Serializable]
+    public class MoveIngEvent:UnityEvent<Vector2> {}
+    [Serializable]
+    public class MoveEndEvent:UnityEvent {}
+    
     public RectTransform Background;
     public RectTransform Knob;
     [Header("Input Values")]
     public float Horizontal = 0;
     public float Vertical = 0;
+
+    public MoveStartEvent OnStart;
+    public MoveIngEvent OnMove;
+    public MoveEndEvent OnEnd;
 
 
     public float offset;
@@ -17,7 +30,6 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        
     }
 
     /// <summary>
@@ -44,6 +56,7 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
         Knob.anchoredPosition = new Vector3 (PointPosition.x * (Background.sizeDelta.x/ (1 + offset))
             ,PointPosition.y * (Background.sizeDelta.y)/(1 + offset));
 
+        OnMove.Invoke(PointPosition);
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -54,11 +67,12 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
     public void OnPointerDown(PointerEventData eventData)
     {
         OnDrag(eventData);
-       
+        OnStart.Invoke();
     }
 
     public void OnPointerUp(PointerEventData eventData) {
         OnEndDrag(eventData);
+        OnEnd.Invoke();
     }
    
 	

@@ -5,7 +5,10 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 [RequireComponent(typeof(UnityEngine.UI.AspectRatioFitter))]
-public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandler,IPointerDownHandler,IPointerUpHandler {
+public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandler,IPointerDownHandler,IPointerUpHandler
+{
+    [Header("Syn Horizontal and Vertical Axis Input")]
+    public bool SynAxis = true;
 
     [Serializable]
     public class MoveStartEvent:UnityEvent {}
@@ -52,11 +55,14 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
             
         PointPosition = new Vector3 (x,y);
         PointPosition = (PointPosition.magnitude > 1) ? PointPosition.normalized : PointPosition;
-        
-        Knob.anchoredPosition = new Vector3 (PointPosition.x * (Background.sizeDelta.x/ (1 + offset))
-            ,PointPosition.y * (Background.sizeDelta.y)/(1 + offset));
 
         OnMove.Invoke(PointPosition);
+    }
+
+    private void _updateKnobOps()
+    {
+        Knob.anchoredPosition = new Vector3(PointPosition.x * (Background.sizeDelta.x / (1 + offset))
+            , PointPosition.y * (Background.sizeDelta.y) / (1 + offset));
     }
 
     public void OnEndDrag(PointerEventData eventData)
@@ -77,9 +83,43 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
    
 	
 	// Update is called once per frame
-	void Update () {
+	void Update ()
+    {
+        _inputAxis();
         Horizontal = PointPosition.x;
         Vertical = PointPosition.y;
+        _updateKnobOps();
+    }
+
+    private bool _start = false;
+    private void _inputAxis()
+    {
+        if (SynAxis)
+        {
+            if ((int) Input.GetAxisRaw("Horizontal") == 0 && (int) Input.GetAxisRaw("Vertical") == 0)
+            {
+                if (_start)
+                {
+                    OnEnd.Invoke();
+
+                    _start = false;
+                }
+            }
+            else
+            {
+                if (!_start)
+                {
+                    OnStart.Invoke();
+                    _start = true;
+                }
+            }
+            
+            PointPosition = new Vector2(Input.GetAxis("Horizontal"),Input.GetAxis("Vertical"));
+            if ((int) Input.GetAxisRaw("Horizontal") != 0 || (int) Input.GetAxisRaw("Vertical") != 0)
+            {
+                OnMove.Invoke(PointPosition);   
+            }
+        }
     }
 
     public Vector2 Coordinate()

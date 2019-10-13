@@ -55,8 +55,6 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
             
         PointPosition = new Vector3 (x,y);
         PointPosition = (PointPosition.magnitude > 1) ? PointPosition.normalized : PointPosition;
-
-        OnMove.Invoke(PointPosition);
     }
 
     private void _updateKnobOps()
@@ -94,6 +92,12 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
         _inputAxis();
         Horizontal = PointPosition.x;
         Vertical = PointPosition.y;
+        
+        if (PointPosition.magnitude > 0)
+        {
+            OnMove.Invoke(PointPosition);
+        }
+        
         _updateKnobOps();
     }
 
@@ -123,10 +127,6 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
             }
 
             PointPosition = new Vector2(Input.GetAxis("Horizontal"),Input.GetAxis("Vertical"));
-            if ((int) Input.GetAxisRaw("Horizontal") != 0 || (int) Input.GetAxisRaw("Vertical") != 0)
-            {
-                OnMove.Invoke(PointPosition);   
-            }
         }
     }
 

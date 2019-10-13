@@ -67,9 +67,15 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        PointPosition = new Vector2(0f,0f);
+        _reset();
+    }
+
+    private void _reset()
+    {
+        PointPosition = new Vector2(0f, 0f);
         Knob.anchoredPosition = Vector2.zero;
     }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         OnDrag(eventData);
@@ -103,6 +109,8 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
                     OnEnd.Invoke();
 
                     _start = false;
+
+                    _reset();
                 }
 
                 return;

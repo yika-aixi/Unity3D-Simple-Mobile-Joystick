@@ -104,16 +104,16 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
 
                     _start = false;
                 }
+
+                return;
             }
-            else
+
+            if (!_start)
             {
-                if (!_start)
-                {
-                    OnStart.Invoke();
-                    _start = true;
-                }
+                OnStart.Invoke();
+                _start = true;
             }
-            
+
             PointPosition = new Vector2(Input.GetAxis("Horizontal"),Input.GetAxis("Vertical"));
             if ((int) Input.GetAxisRaw("Horizontal") != 0 || (int) Input.GetAxisRaw("Vertical") != 0)
             {

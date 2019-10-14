@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 [RequireComponent(typeof(UnityEngine.UI.AspectRatioFitter))]
 public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandler,IEndDragHandler,IPointerDownHandler,IPointerUpHandler
 {
+    public bool IsFixedUpdate = true;
     [Header("Syn Horizontal and Vertical Axis Input")]
     public bool SynAxis = true;
 
@@ -92,13 +93,27 @@ public class MobileInputController : MonoBehaviour,IBeginDragHandler,IDragHandle
         _inputAxis();
         Horizontal = PointPosition.x;
         Vertical = PointPosition.y;
-        
-        if (PointPosition.magnitude > 0)
+
+        if (!IsFixedUpdate)
         {
-            OnMove.Invoke(PointPosition);
+            if (PointPosition.magnitude > 0)
+            {
+                OnMove.Invoke(PointPosition);
+            }
         }
         
         _updateKnobOps();
+    }
+
+    private void FixedUpdate()
+    {
+        if (IsFixedUpdate)
+        {
+            if (PointPosition.magnitude > 0)
+            {
+                OnMove.Invoke(PointPosition);
+            }
+        }
     }
 
     private bool _start = false;

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
 
 namespace CabinIcarus.Joystick.Components
 {
@@ -7,46 +9,72 @@ namespace CabinIcarus.Joystick.Components
     public class AdvancedButton : Button
     {
         public bool IsDownTrigger;
-        public KeyInfo keys;
+        public bool IsHold = false;
+        public float HoldTriggerTime = 0.5f;
+        public KeyInfo Keys;
 
+        private float _lastTime;
+        
         private void Update()
         {
-            if (!IsActive() || !IsInteractable() || keys == null)
+            if (!IsActive() || !IsInteractable() || Keys == null)
             {
                 return;
             }
             
-            keys.Update();
+            Keys.Update();
             
-            if (keys.Down || keys.Hold)
+            if (Keys.Down || Keys.Hold)
             {
                 DoStateTransition(SelectionState.Pressed, false);
             }
 
-            if (keys.Up)
+            if (Keys.Up)
             {
                 DoStateTransition(SelectionState.Normal, false);
             }
 
+            if (IsHold)
+            {
+                if (Keys.Hold | IsPressed())
+                {
+                    if (Time.time < _lastTime)
+                    {
+                        return;
+                    }
+
+                    _lastTime = Time.time + HoldTriggerTime;
+                    
+                    onClick.Invoke();
+
+                    return;
+                }
+            }
+            
             if (!IsDownTrigger)
             {
-                if (keys.Up)
+                if (Keys.Up)
                 {
                     onClick.Invoke();
                 }
             }
             else
             {
-                if (keys.Down)
+                if (Keys.Down)
                 {
                     onClick.Invoke();
                 }
             }
         }
 
-        public void Log()
+        public override void OnPointerClick(PointerEventData eventData)
         {
-            Debug.LogError("12");
+            if (IsHold)
+            {
+                return;
+            }
+            
+            base.OnPointerClick(eventData);
         }
     }
 }

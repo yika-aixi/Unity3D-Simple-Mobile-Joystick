@@ -12,11 +12,15 @@ namespace CabinIcarus.Joystick.Editor
     public class AdvancedButtonEditor : ButtonEditor
     {
         SerializedProperty _keysProperty;
+        SerializedProperty _isHoldProperty;
+        SerializedProperty _holdTriggerTimeProperty;
         SerializedProperty _isDownProperty;
         protected override void OnEnable()
         {
             base.OnEnable();
-            _keysProperty = serializedObject.FindProperty("keys");
+            _keysProperty = serializedObject.FindProperty("Keys");
+            _isHoldProperty = serializedObject.FindProperty("IsHold");
+            _holdTriggerTimeProperty = serializedObject.FindProperty("HoldTriggerTime");
             _isDownProperty = serializedObject.FindProperty("IsDownTrigger");
         }
 
@@ -29,7 +33,8 @@ namespace CabinIcarus.Joystick.Editor
                     serializedObject.Update();
                     {
                         EditorGUILayout.PropertyField(_isDownProperty);
-                     
+                        EditorGUILayout.PropertyField(_isHoldProperty);
+                        EditorGUILayout.PropertyField(_holdTriggerTimeProperty);
                         GUILayout.FlexibleSpace();
                         
                         EditorGUILayout.PropertyField(_keysProperty);

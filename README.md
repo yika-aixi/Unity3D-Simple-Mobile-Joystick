@@ -8,7 +8,7 @@ Joystick controller for touchscreen device in unity 3d.
 
 Similar arributes as unity native Input axis.
 
-## Demo
+## Joystick Demo
 
 <table style="width:100%">
   <tr>
@@ -45,7 +45,7 @@ Similar arributes as unity native Input axis.
 
 # Usages
 
-## Parameter
+## Joystick Parameter
   <table style="width:100%">
   <tr>
     <th>Name</th>
@@ -70,7 +70,7 @@ Similar arributes as unity native Input axis.
   </tr>
 </table>
 
-## Methods
+## Joystick Methods
 
 <table style="width:100%">
   <tr>
@@ -86,4 +86,9 @@ Similar arributes as unity native Input axis.
   </tr>
 </table>
 
+## Advanced Button
+
+一个高级的Button,输入绑定(触发ui效果),灵活的绑定设置,只需完善`InputInfo`类即可
+
+An advanced Button, input binding (trigger ui effect), flexible binding settings, only need to perfect the `InputInfo` class
 

@@ -1,6 +1,6 @@
-﻿using UnityEngine;
+﻿using CabinIcarus.Joystick.Evetns;
+using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UIElements;
 using Button = UnityEngine.UI.Button;
 
 namespace CabinIcarus.Joystick.Components
@@ -8,73 +8,163 @@ namespace CabinIcarus.Joystick.Components
     [AddComponentMenu("CabinIcarus/UI/Advanced Button", 30)]
     public class AdvancedButton : Button
     {
-        public bool IsDownTrigger;
-        public bool IsHold = false;
-        public float HoldTriggerTime = 0.5f;
-        public KeyInfo Keys;
+        public bool UseDownTrigger;
+        public float HoldTriggerInterval;
+        public InputInfo InputBind;
 
-        private float _lastTime;
-        
+        public InputUpEvent OnDown;
+        public InputUpEvent OnUp;
+        public InputHold OnHold;
+
         private void Update()
         {
-            if (!IsActive() || !IsInteractable() || Keys == null)
+            if (!IsActive() || !IsInteractable() || InputBind == null)
             {
                 return;
             }
             
-            Keys.Update();
+            InputBind.Update();
             
-            if (Keys.Down || Keys.Hold)
-            {
-                DoStateTransition(SelectionState.Pressed, false);
-            }
+            _stateTransition();
 
-            if (Keys.Up)
-            {
-                DoStateTransition(SelectionState.Normal, false);
-            }
+            _downHandle();
+            
+            _holdHandle();
 
-            if (IsHold)
+            _clickEventHandle();
+
+            _upHandle(false);
+        }
+
+        #region Event Handle
+
+        private bool _downT;
+        private float _holdTime;
+        private float _lastHoldTriggerTime;
+        
+        private void _downHandle()
+        {
+            if (UseDownTrigger)
             {
-                if (Keys.Hold | IsPressed())
+                if (_downT)
                 {
-                    if (Time.time < _lastTime)
-                    {
-                        return;
-                    }
-
-                    _lastTime = Time.time + HoldTriggerTime;
-                    
-                    onClick.Invoke();
-
+                    return;   
+                }
+                
+                if (InputBind.Down || IsPressed())
+                {
+                    _downT = true;
+                    _lastHoldTriggerTime = Time.time + HoldTriggerInterval;
+                    OnDown.Invoke();
+                }
+            }
+        }
+        
+        private void _upHandle(bool isPoint)
+        {
+            if (UseDownTrigger)
+            {
+                if (!_downT)
+                {
                     return;
                 }
-            }
-            
-            if (!IsDownTrigger)
-            {
-                if (Keys.Up)
+                
+                if (InputBind.Up && !isPoint || !IsPressed() && isPoint)
                 {
-                    onClick.Invoke();
+                    _downT = false;
+                    OnUp.Invoke();
                 }
             }
-            else
+            
+            //reset Time
+            if (InputBind.Up && !isPoint || !IsPressed() && isPoint)
             {
-                if (Keys.Down)
+                _holdTime = 0;
+                _lastHoldTriggerTime = 0;
+            }
+        }
+
+        private void _holdHandle()
+        {
+            if (InputBind.Hold || IsPressed())
+            {
+                _holdTime += Time.deltaTime;
+
+                if (Time.time < _lastHoldTriggerTime)
+                {
+                    return;
+                }
+
+                _lastHoldTriggerTime = Time.time + HoldTriggerInterval;
+                
+                OnHold.Invoke(_holdTime);
+            }
+        }
+        
+        private void _clickEventHandle()
+        {
+            if (!UseDownTrigger)
+            {
+                if (InputBind.Up && !IsPressed())
                 {
                     onClick.Invoke();
                 }
             }
         }
 
+        #endregion
+
+        private void _stateTransition()
+        {
+            if (InputBind.Down || InputBind.Hold)
+            {
+                DoStateTransition(SelectionState.Pressed, false);
+            }
+
+            if (InputBind.Up)
+            {
+                DoStateTransition(SelectionState.Normal, false);
+            }
+        }
+
+        public override void OnPointerDown(PointerEventData eventData)
+        {
+            base.OnPointerDown(eventData);
+            _downHandle();
+        }
+
+        public override void OnPointerUp(PointerEventData eventData)
+        {
+            base.OnPointerUp(eventData);
+
+            _upHandle(true);
+        }
+
         public override void OnPointerClick(PointerEventData eventData)
         {
-            if (IsHold)
+            if (UseDownTrigger)
             {
                 return;
             }
             
             base.OnPointerClick(eventData);
+        }
+
+        public void DebugDown()
+        {
+            Debug.LogError("Down");
+        }
+        public void DebugHold(float time)
+        {
+            Debug.LogError($"Hold:{time}");
+        }
+        public void DebugUP()
+        {
+            Debug.LogError("UP");
+        }
+        public void DebugClick()
+        {
+            Debug.LogError("Click");
         }
     }
 }

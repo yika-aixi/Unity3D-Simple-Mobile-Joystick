@@ -4,6 +4,9 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
+#if ENABLE_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
 
 namespace CabinIcarus.Joystick.Components
 {
@@ -11,6 +14,34 @@ namespace CabinIcarus.Joystick.Components
     public class JoystickComponent : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler,
         IPointerDownHandler, IPointerUpHandler
     {
+        
+#if ENABLE_INPUT_SYSTEM
+        public InputAction MoveInput;
+
+        private void Awake()
+        {
+            MoveInput.started += _inputAxis;
+            MoveInput.performed += _inputAxis;
+            MoveInput.canceled += _inputAxis;
+        }
+
+        private void OnEnable()
+        {
+            MoveInput.Enable();
+        }
+
+        private void OnDisable()
+        {
+            MoveInput.Disable();
+        }
+
+        private void OnDestroy()
+        {
+            MoveInput.Dispose();
+            MoveInput = null;
+        }
+#endif
+        
         public bool IsFixedUpdate = true;
 
         [Header("Syn Horizontal and Vertical Axis Input")]
@@ -39,6 +70,9 @@ namespace CabinIcarus.Joystick.Components
         public MoveStartEvent OnStart;
         public MoveIngEvent OnMove;
         public MoveEndEvent OnEnd;
+
+        [SerializeField]
+        private MoveIngEvent OnEndVe2;
 
 
         public float offset;
@@ -97,13 +131,17 @@ namespace CabinIcarus.Joystick.Components
         {
             OnEndDrag(eventData);
             OnEnd.Invoke();
+            OnEndVe2.Invoke(Vector2.zero);
         }
 
 
         // Update is called once per frame
         void Update()
         {
+            
+#if !ENABLE_INPUT_SYSTEM
             _inputAxis();
+#endif
             Horizontal = PointPosition.x;
             Vertical = PointPosition.y;
 
@@ -130,17 +168,28 @@ namespace CabinIcarus.Joystick.Components
         }
 
         private bool _start = false;
-
+        
+#if !ENABLE_INPUT_SYSTEM
         private void _inputAxis()
+#else
+        private void _inputAxis(InputAction.CallbackContext context)
+#endif
         {
             if (SynAxis)
             {
-                if ((int) Input.GetAxisRaw("Horizontal") == 0 && (int) Input.GetAxisRaw("Vertical") == 0)
+#if !ENABLE_INPUT_SYSTEM
+                PointPosition = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+#else
+                PointPosition = context.ReadValue<Vector2>();
+#endif
+                
+                if ((int) PointPosition.magnitude == 0)
                 {
                     if (_start)
                     {
                         OnEnd.Invoke();
-
+                        OnEndVe2.Invoke(Vector2.zero);
+                        
                         _start = false;
 
                         _reset();
@@ -155,7 +204,6 @@ namespace CabinIcarus.Joystick.Components
                     _start = true;
                 }
 
-                PointPosition = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
             }
         }
 

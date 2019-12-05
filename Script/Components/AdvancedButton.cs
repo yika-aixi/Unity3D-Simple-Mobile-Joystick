@@ -12,11 +12,11 @@ namespace CabinIcarus.Joystick.Components
         public float HoldTriggerInterval;
         public InputInfo InputBind;
 
-        public InputUpEvent OnDown;
-        public InputUpEvent OnUp;
-        public InputHold OnHold;
-
-        private void Update()
+        public InputUpEvent OnDown = new InputUpEvent();
+        public InputUpEvent OnUp = new InputUpEvent();
+        public InputHold OnHold = new InputHold();
+        
+        protected virtual void Update()
         {
             if (!IsActive() || !IsInteractable() || InputBind == null)
             {

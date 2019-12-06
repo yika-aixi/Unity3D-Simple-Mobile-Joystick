@@ -11,7 +11,8 @@ namespace CabinIcarus.Joystick.Components
         public float CurrentCoolingTime;
 
         public Image CoolingMask;
-
+        public Text CoolingText;
+        
         [SerializeField]
         private bool _coolingState;
         
@@ -20,6 +21,11 @@ namespace CabinIcarus.Joystick.Components
             if (CoolingMask)
             {
                 CoolingMask.enabled = false;
+            }
+            
+            if (CoolingText)
+            {
+                CoolingText.enabled = false;
             }
 
             if (_coolingState)
@@ -32,26 +38,42 @@ namespace CabinIcarus.Joystick.Components
         {
             _coolingState = true;
             CurrentCoolingTime = CoolingTime;
+            
             if (CoolingMask)
             {
                 CoolingMask.enabled = true;
             }
-
+            
+            if (CoolingText)
+            {
+                CoolingText.enabled = true;
+            }
+            
             interactable = false;
         }
 
         public NoParEvent OnCoolingComplete = new NoParEvent();
-
+        public FloatParEvent OnCoolingChange = new FloatParEvent();
+        
         private void FixedUpdate()
         {
             if (_coolingState)
             {
                 CurrentCoolingTime -= Time.fixedDeltaTime;
 
+                if (CurrentCoolingTime < 0)
+                {
+                    CurrentCoolingTime = 0;
+                }
+                
                 if (CoolingMask)
                 {
                     CoolingMask.fillAmount = CurrentCoolingTime / CoolingTime;
                 }
+                
+                OnCoolingChange?.Invoke(CurrentCoolingTime);
+                
+                CoolingText.text = CurrentCoolingTime.ToString("F");
                 
                 if (CurrentCoolingTime <= 0)
                 {
@@ -68,6 +90,11 @@ namespace CabinIcarus.Joystick.Components
             if (CoolingMask)
             {
                 CoolingMask.enabled = false;
+            }
+
+            if (CoolingText)
+            {
+                CoolingText.enabled = false;
             }
 
             OnCoolingComplete.Invoke();

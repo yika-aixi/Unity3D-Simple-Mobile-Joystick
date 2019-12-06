@@ -22,13 +22,13 @@ namespace CabinIcarus.Joystick.Editor
         protected override void OnEnable()
         {
             base.OnEnable();
-            _UseDownTriggerProperty = serializedObject.FindProperty("UseDownTrigger");
-            _HoldTriggerIntervalProperty = serializedObject.FindProperty("HoldTriggerInterval");
-            _InputBindProperty = serializedObject.FindProperty("InputBind");
+            _UseDownTriggerProperty = serializedObject.FindProperty(nameof(AdvancedButton.UseDownTrigger));
+            _HoldTriggerIntervalProperty = serializedObject.FindProperty(nameof(AdvancedButton.HoldTriggerInterval));
+            _InputBindProperty = serializedObject.FindProperty(nameof(AdvancedButton.InputBind));
             
-            _OnDownProperty = serializedObject.FindProperty("OnDown");
-            _OnHoldProperty = serializedObject.FindProperty("OnHold");
-            _OnUPProperty = serializedObject.FindProperty("OnUp");
+            _OnDownProperty = serializedObject.FindProperty(nameof(AdvancedButton.OnDown));
+            _OnHoldProperty = serializedObject.FindProperty(nameof(AdvancedButton.OnHold));
+            _OnUPProperty = serializedObject.FindProperty(nameof(AdvancedButton.OnUp));
             _onClickProperty = serializedObject.FindProperty("m_OnClick");
         }
 
@@ -43,7 +43,7 @@ namespace CabinIcarus.Joystick.Editor
                         EditorGUILayout.PropertyField(_HoldTriggerIntervalProperty);
                         EditorGUILayout.PropertyField(_UseDownTriggerProperty);
                         GUILayout.FlexibleSpace();
-                        EditorGUILayout.PropertyField(_InputBindProperty);
+                        EditorGUILayout.PropertyField(_InputBindProperty,true);
                     }
                     serializedObject.ApplyModifiedProperties();
                 }

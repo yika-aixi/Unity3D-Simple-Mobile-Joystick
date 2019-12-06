@@ -14,7 +14,7 @@ namespace CabinIcarus.Joystick.Components
 
         public InputUpEvent OnDown = new InputUpEvent();
         public InputUpEvent OnUp = new InputUpEvent();
-        public InputHold OnHold = new InputHold();
+        public FloatParEvent OnHold = new FloatParEvent();
         
         protected virtual void Update()
         {

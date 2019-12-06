@@ -18,5 +18,5 @@ namespace CabinIcarus.Joystick.Evetns
    public class InputUpEvent:UnityEvent{}
    
    [Serializable]
-   public class InputHold : UnityEvent<float>{}
+   public class FloatParEvent : UnityEvent<float>{}
 }

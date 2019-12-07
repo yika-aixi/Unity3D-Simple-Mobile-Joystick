@@ -11,10 +11,16 @@ namespace CabinIcarus.Joystick.Components
         public float CurrentCoolingTime;
 
         public Image CoolingMask;
+        
         public Text CoolingText;
         
         [SerializeField]
         private bool _coolingState;
+
+        public void SetCoolingTime(float time)
+        {
+            CoolingTime = time;
+        }
         
         protected override void Awake()
         {

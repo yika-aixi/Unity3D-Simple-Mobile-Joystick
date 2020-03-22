@@ -47,6 +47,10 @@ namespace CabinIcarus.Joystick.Components
         [Header("Syn Horizontal and Vertical Axis Input")]
         public bool SynAxis = true;
 
+        [Header("Smooth Horizontal and Vertical Axis Input exit")]
+        public bool SmoothExit = false;
+        
+        
         [Serializable]
         public class MoveStartEvent : UnityEvent
         {
@@ -77,6 +81,7 @@ namespace CabinIcarus.Joystick.Components
 
         public float offset;
         Vector2 PointPosition;
+        private bool _dragStart;
 
         public void OnBeginDrag(PointerEventData eventData)
         {
@@ -88,6 +93,8 @@ namespace CabinIcarus.Joystick.Components
         /// <param name="eventData"></param>
         public void OnDrag(PointerEventData eventData)
         {
+            _dragStart = true;
+            
             RectTransformUtility.ScreenPointToLocalPointInRectangle
             (Background,
                 eventData.position,
@@ -112,12 +119,13 @@ namespace CabinIcarus.Joystick.Components
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            _dragStart = false;
             _reset();
         }
 
         private void _reset()
         {
-            PointPosition = new Vector2(0f, 0f);
+            PointPosition = Vector2.zero;
             Knob.anchoredPosition = Vector2.zero;
         }
 
@@ -175,23 +183,32 @@ namespace CabinIcarus.Joystick.Components
         private void _inputAxis(InputAction.CallbackContext context)
 #endif
         {
-            if (SynAxis)
+            if (SynAxis && !_dragStart)
             {
 #if !ENABLE_INPUT_SYSTEM
                 PointPosition = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+
+                float lenght = PointPosition.sqrMagnitude;
+                if (!SmoothExit)
+                {
+                    var exit = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+                    lenght = exit.sqrMagnitude;
+                    if ((int) lenght == 0)
+                    {
+                        PointPosition = Vector2.zero;
+                    }
+                }
 #else
                 PointPosition = context.ReadValue<Vector2>();
 #endif
                 
-                if ((int) PointPosition.magnitude == 0)
+                if ((int) lenght == 0)
                 {
                     if (_start)
                     {
+                        _start = false;
                         OnEnd.Invoke();
                         OnEndVe2.Invoke(Vector2.zero);
-                        
-                        _start = false;
-
                         _reset();
                     }
 
@@ -200,8 +217,8 @@ namespace CabinIcarus.Joystick.Components
 
                 if (!_start)
                 {
-                    OnStart.Invoke();
                     _start = true;
+                    OnStart.Invoke();
                 }
 
             }

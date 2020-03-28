@@ -68,7 +68,9 @@ namespace CabinIcarus.Joystick.Components
 
         public RectTransform Background;
         public RectTransform Knob;
-        [Header("Input Values")] public float Horizontal = 0;
+        public float offset = 1;
+        [Header("Input Values")] 
+        public float Horizontal = 0;
         public float Vertical = 0;
 
         public MoveStartEvent OnStart;
@@ -79,7 +81,6 @@ namespace CabinIcarus.Joystick.Components
         private MoveIngEvent OnEndVe2;
 
 
-        public float offset;
         Vector2 PointPosition;
         private bool _dragStart;
 
@@ -187,7 +188,6 @@ namespace CabinIcarus.Joystick.Components
             {
 #if !ENABLE_INPUT_SYSTEM
                 PointPosition = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-
                 float lenght = PointPosition.sqrMagnitude;
                 if (!SmoothExit)
                 {

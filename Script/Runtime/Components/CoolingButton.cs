@@ -90,8 +90,15 @@ namespace CabinIcarus.Joystick.Components
 
         private void _complete()
         {
+            ExitCooling();
+
+            OnCoolingComplete.Invoke();
+        }
+
+        public void ExitCooling()
+        {
             _coolingState = false;
-            
+
             interactable = true;
             if (CoolingMask)
             {
@@ -102,8 +109,6 @@ namespace CabinIcarus.Joystick.Components
             {
                 CoolingText.enabled = false;
             }
-
-            OnCoolingComplete.Invoke();
         }
     }
 }
